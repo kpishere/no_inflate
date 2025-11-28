@@ -7,7 +7,6 @@ readme = "README.md"
 homepage = "https://github.com/kpishere/no_inflate"
 repository = "https://github.com/kpishere/no_inflate"
 license = "GPL-2.0"
-license-file = "LICENSE"
 keywords = ["zlib", "inflate","decompress","embedded"]
 categories = ["compression", "no-std"]
 exclude = ["target", ".git", "Cargo.lock"]
