@@ -2,6 +2,15 @@
 name = "no_inflate"
 version = "0.1.0"
 edition = "2021"
+description = "A minimal no_std Rust library implementing zlib inflate (DEFLATE) algorithm in pure Rust using alloc for dynamic output buffer."
+readme = "README.md"
+homepage = "https://github.com/kpishere/no_inflate"
+repository = "https://github.com/kpishere/no_inflate"
+license = "GPL-2.0"
+license-file = "LICENSE"
+keywords = ["zlib", "inflate","decompress","embedded"]
+categories = ["compression", "no-std"]
+exclude = ["target", ".git", "Cargo.lock"]
 
 [lib]
 name = "no_inflate"
