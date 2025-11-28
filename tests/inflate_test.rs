@@ -17,7 +17,7 @@ fn roundtrip_simple() {
 #[test]
 fn roundtrip_large() {
     let mut data = Vec::new();
-    for i in 0..1000 {
+    for _i in 0..1000 {
         data.extend_from_slice(b"Hello WORLD '123456' ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
     }
     use flate2::{Compression, write::ZlibEncoder};

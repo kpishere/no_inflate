@@ -69,8 +69,8 @@ pub fn inflate_zlib(input: &[u8]) -> Result<Vec<u8>, InflateError> {
             }
             1 | 2 => {
                 // Huffman compressed block (1=Fixed, 2=Dynamic)
-                let mut litlen_table: HuffmanTable;
-                let mut dist_table: HuffmanTable;
+                let litlen_table: HuffmanTable;
+                let dist_table: HuffmanTable;
                 if btype == 1 {
                     litlen_table = build_fixed_litlen_table();
                     dist_table = build_fixed_dist_table();
@@ -80,7 +80,7 @@ pub fn inflate_zlib(input: &[u8]) -> Result<Vec<u8>, InflateError> {
                     let hlit = br.read_bits(5).ok_or(InflateError::InputTooShort)? as usize + 257;
                     let hdist = br.read_bits(5).ok_or(InflateError::InputTooShort)? as usize + 1;
                     let hclen = br.read_bits(4).ok_or(InflateError::InputTooShort)? as usize + 4;
-                    let mut code_len_order = [16usize,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];
+                    let code_len_order = [16usize,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];
                     let mut clens = [0u8; 19];
                     for i in 0..hclen {
                         clens[code_len_order[i]] = br.read_bits(3).ok_or(InflateError::InputTooShort)? as u8;
