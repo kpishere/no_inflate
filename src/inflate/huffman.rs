@@ -3,8 +3,9 @@ use crate::inflate::bitreader::BitReader;
 use crate::InflateError;
 
 pub struct HuffmanTable {
-    max_bits: usize,
-    table: Vec<u32>, // packed as (symbol << 8) | len, 0xffffffff for invalid
+    pub max_bits: usize,
+    pub children: Vec<i32>,
+    pub symbol: Vec<i32>,
 }
 
 fn reverse_bits(mut v: u32, len: usize) -> u32 {
@@ -29,8 +30,8 @@ impl HuffmanTable {
         }
 
         // Count codes per length
-        let mut counts: Vec<u16> = Vec::new();
-        counts.resize(max_bits + 1, 0u16);
+        let mut counts: Vec<usize> = Vec::new();
+        counts.resize(max_bits + 1, 0usize);
         for &l in lengths.iter() {
             if l as usize > max_bits { return Err(InflateError::BadHuffmanCode); }
             if l > 0 { counts[l as usize] += 1; }
@@ -44,40 +45,59 @@ impl HuffmanTable {
             next_code[bits] = code;
         }
 
-        let table_size = 1usize << max_bits;
-        let mut table: Vec<u32> = Vec::new();
-        table.resize(table_size, 0xffffffffu32);
+        // build trie
+        let mut children: Vec<i32> = Vec::new();
+        let mut symbol_vec: Vec<i32> = Vec::new();
+        children.push(-1); children.push(-1); symbol_vec.push(-1); // root
 
-        for (sym, &len) in lengths.iter().enumerate() {
-            let len = len as usize;
+        for (sym, &l) in lengths.iter().enumerate() {
+            let len = l as usize;
             if len == 0 { continue; }
-            let code = next_code[len];
+            let c = next_code[len];
             next_code[len] += 1;
-            let rev = reverse_bits(code, len);
-            let shift = max_bits - len;
-            let start = (rev as usize) << shift;
-            let end = start + (1usize << shift);
-            let packed = ((sym as u32) << 8) | (len as u32);
-            for idx in start..end {
-                table[idx] = packed;
+            let rev = reverse_bits(c, len);
+            let mut node = 0usize;
+            for i in 0..len {
+                let bit = ((rev >> i) & 1) as usize;
+                let child_idx = node * 2 + bit;
+                if child_idx >= children.len() { children.resize(child_idx + 1, -1); }
+                let child = children[child_idx];
+                if child == -1 {
+                    let new_node = symbol_vec.len() as i32;
+                    children.push(-1); children.push(-1);
+                    symbol_vec.push(-1);
+                    children[child_idx] = new_node;
+                    node = new_node as usize;
+                } else {
+                    node = child as usize;
+                }
             }
+            if symbol_vec[node] != -1 { return Err(InflateError::BadHuffmanCode); }
+            symbol_vec[node] = sym as i32;
         }
 
-        Ok(HuffmanTable { max_bits, table })
+        Ok(HuffmanTable { max_bits, children, symbol: symbol_vec })
     }
 
     pub fn read_symbol(&self, br: &mut BitReader) -> Result<u16, InflateError> {
-        // peek max_bits
-        let peek = br.peek_bits(self.max_bits).ok_or(InflateError::InputTooShort)?;
-        let idx = peek as usize;
-        let entry = self.table.get(idx).ok_or(InflateError::BadHuffmanCode)?;
-        if *entry == 0xffffffffu32 { return Err(InflateError::BadHuffmanCode); }
-        let sym = (*entry >> 8) as u16;
-        let len = (*entry & 0xff) as usize;
-        // consume bits
-        let _ = br.read_bits(len).ok_or(InflateError::InputTooShort)?;
-        Ok(sym)
+        let mut node = 0usize;
+        loop {
+            if self.symbol[node] != -1 {
+                return Ok(self.symbol[node] as u16);
+            }
+            let bit = br.read_bits(1).ok_or(InflateError::InputTooShort)? as usize;
+            let child_idx = node * 2 + bit;
+            if child_idx >= self.children.len() { return Err(InflateError::BadHuffmanCode); }
+            let child = self.children[child_idx];
+            if child == -1 { return Err(InflateError::BadHuffmanCode); }
+            node = child as usize;
+        }
     }
+
+    // Debug helpers
+    pub fn max_bits(&self) -> usize { self.max_bits }
+    pub fn children(&self) -> &[i32] { &self.children }
+    pub fn symbols(&self) -> &[i32] { &self.symbol }
 }
 
 // build fixed tables for litlen and dist
@@ -95,6 +115,7 @@ pub fn build_fixed_litlen_table() -> HuffmanTable {
 }
 
 pub fn build_fixed_dist_table() -> HuffmanTable {
-    let lengths = [5u8; 32];
+    let mut lengths = Vec::new();
+    lengths.resize(32, 5u8);
     HuffmanTable::from_lengths(&lengths).expect("failed to build fixed dist table")
 }

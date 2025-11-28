@@ -60,6 +60,7 @@ pub fn inflate_zlib(input: &[u8]) -> Result<Vec<u8>, InflateError> {
                 let nhi = br.read_byte().ok_or(InflateError::InputTooShort)? as u16;
                 let nlen = (nhi << 8) | nlo;
                 if len != (!nlen) {
+                    // stored block length mismatch
                     return Err(InflateError::BadBlockData);
                 }
                 for _ in 0..len {

@@ -70,4 +70,6 @@ impl<'a> BitReader<'a> {
         self.byte_pos += 1;
         Some(b)
     }
+
+    pub fn byte_pos(&self) -> usize { self.byte_pos }
 }
