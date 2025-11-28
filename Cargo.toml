@@ -1,0 +1,20 @@
+[package]
+name = "no_inflate"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "no_inflate"
+path = "src/lib.rs"
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+# no_std, we use alloc, so no std dependency here
+alloc = { optional = true }
+
+[features]
+default = []
+alloc = []
+
+[dev-dependencies]
+flate2 = { version = "1.0", features = ["zlib"] }
