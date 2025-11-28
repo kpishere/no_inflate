@@ -18,3 +18,4 @@ alloc = []
 
 [dev-dependencies]
 flate2 = { version = "1.0", features = ["zlib"] }
+wee_alloc = "0.7"
