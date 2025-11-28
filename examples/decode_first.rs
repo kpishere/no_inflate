@@ -1,4 +1,4 @@
-use no_inflate::inflate::{bitreader::BitReader, huffman::{build_fixed_litlen_table, build_fixed_dist_table}};
+use no_inflate::inflate::{bitreader::BitReader, huffman::{build_fixed_litlen_table}};
 use flate2::{Compression, write::ZlibEncoder};
 use std::io::Write;
 
@@ -11,7 +11,6 @@ fn main() {
 
     let mut br = BitReader::new(&compressed[2..]);
     let lit_table = build_fixed_litlen_table();
-    let mut dist_table = build_fixed_dist_table();
 
     // read a few symbols
     // Print the lookup table entries for debugging
@@ -64,12 +63,11 @@ fn main() {
     if let Some(idx) = sym_to_index[84] { println!("symbol 84 assigned at idx {} expecting ascii T", idx);} else { println!("symbol 84 not assigned length"); }
 
     // Check mapping consistency (sanity check on canonical mapping)
-    let mut errors = 0usize;
-    for (sym, idx_opt) in sym_to_index.iter().enumerate() {
-        if let Some(idx) = idx_opt {
-            // Not checking trie internals here
-        }
-    }
+    //for (idx_opt) in sym_to_index.iter().enumerate() {
+    //    if let Some(idx) = idx_opt {        
+    //        // Not checking trie internals here
+    //    }
+    //}
 
     // Replicate the HuffmanTable::from_lengths algorithm directly and check for collisions
     let table_size = 1<<max_bits;
