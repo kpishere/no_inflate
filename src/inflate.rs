@@ -87,8 +87,10 @@ pub fn inflate_zlib(input: &[u8]) -> Result<Vec<u8>, InflateError> {
                     }
                     let cl_table = HuffmanTable::from_lengths(&clens)?;
                     // read HLIT + HDIST code lengths using the code length Huffman
-                    let mut litlen_lens = vec![0u8; hlit];
-                    let mut dist_lens = vec![0u8; hdist];
+                    let mut litlen_lens: Vec<u8> = Vec::new();
+                    litlen_lens.resize(hlit, 0u8);
+                    let mut dist_lens: Vec<u8> = Vec::new();
+                    dist_lens.resize(hdist, 0u8);
                     let mut idx = 0usize;
                     while idx < hlit + hdist {
                         let sym = cl_table.read_symbol(&mut br)?;

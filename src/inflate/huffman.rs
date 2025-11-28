@@ -1,5 +1,4 @@
 use alloc::vec::Vec;
-use core::convert::TryInto;
 use crate::inflate::bitreader::BitReader;
 use crate::InflateError;
 
@@ -30,13 +29,15 @@ impl HuffmanTable {
         }
 
         // Count codes per length
-        let mut counts = vec![0u16; max_bits + 1];
+        let mut counts: Vec<u16> = Vec::new();
+        counts.resize(max_bits + 1, 0u16);
         for &l in lengths.iter() {
             if l as usize > max_bits { return Err(InflateError::BadHuffmanCode); }
             if l > 0 { counts[l as usize] += 1; }
         }
         // compute next_code
-        let mut next_code = vec![0u32; max_bits + 1];
+        let mut next_code: Vec<u32> = Vec::new();
+        next_code.resize(max_bits + 1, 0u32);
         let mut code = 0u32;
         for bits in 1..=max_bits {
             code = (code + counts[bits - 1] as u32) << 1;
@@ -44,7 +45,8 @@ impl HuffmanTable {
         }
 
         let table_size = 1usize << max_bits;
-        let mut table = vec![0xffffffffu32; table_size];
+        let mut table: Vec<u32> = Vec::new();
+        table.resize(table_size, 0xffffffffu32);
 
         for (sym, &len) in lengths.iter().enumerate() {
             let len = len as usize;
@@ -83,7 +85,8 @@ impl HuffmanTable {
 pub fn build_fixed_litlen_table() -> HuffmanTable {
     // per RFC 1951
     // litlen lengths: 0-143:8 bits, 144-255:9, 256-279:7, 280-287:8
-    let mut lengths = vec![0u8; 288];
+    let mut lengths: Vec<u8> = Vec::new();
+    lengths.resize(288, 0u8);
     for i in 0..=143 { lengths[i] = 8; }
     for i in 144..=255 { lengths[i] = 9; }
     for i in 256..=279 { lengths[i] = 7; }
@@ -92,6 +95,6 @@ pub fn build_fixed_litlen_table() -> HuffmanTable {
 }
 
 pub fn build_fixed_dist_table() -> HuffmanTable {
-    let lengths = vec![5u8; 32];
+    let lengths = [5u8; 32];
     HuffmanTable::from_lengths(&lengths).expect("failed to build fixed dist table")
 }

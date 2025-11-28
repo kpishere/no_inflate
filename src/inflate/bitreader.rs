@@ -1,4 +1,3 @@
-use core::convert::TryInto;
 
 pub struct BitReader<'a> {
     data: &'a [u8],
