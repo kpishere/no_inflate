@@ -1,6 +1,6 @@
 // TODO: Uncomment this line to perform test and use as library
 //
-//#![cfg_attr(not(test), no_std)]
+#![cfg_attr(not(test), no_std)]
 //
 #![deny(warnings)]
 
