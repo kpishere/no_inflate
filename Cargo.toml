@@ -1,6 +1,6 @@
 [package]
 name = "no_inflate"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "A minimal no_std Rust library implementing zlib inflate (DEFLATE) algorithm in pure Rust using alloc for dynamic output buffer."
 readme = "README.md"
