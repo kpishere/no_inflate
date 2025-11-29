@@ -1,4 +1,4 @@
-#![cfg_attr(test, no_std)]
+#![cfg_attr(not(test), no_std)]
 #![deny(warnings)]
 
 extern crate alloc;
