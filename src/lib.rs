@@ -1,4 +1,7 @@
-#![cfg_attr(not(test), no_std)]
+// TODO: Uncomment this line to perform test and use as library
+//
+//#![cfg_attr(not(test), no_std)]
+//
 #![deny(warnings)]
 
 extern crate alloc;

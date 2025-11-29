@@ -11,6 +11,14 @@ Key features:
 - Supports stored, fixed, and dynamic Huffman blocks (RFC 1951)
 - No dependencies on the standard library for the library code
 
+BEFORE USING:
+Sorry, there is issue with how this lib is done and using 'cargo publish' feature.
+Before using as no_std library, edit the file srd/lib.rs and uncomment the 3rd line.
+(Publish operation appears to run a test but the test isn't including stdlib.)
+```rust
+//#![cfg_attr(not(test), no_std)]
+```
+
 Usage:
 ```rust
 use no_inflate::inflate_zlib;
