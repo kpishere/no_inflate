@@ -31,7 +31,7 @@ let decompressed = inflate_zlib(compressed).expect("decompress");
 Run tests (requires a standard Rust toolchain):
 
 ```bash
-cargo test --lib test
+cargo test_pc
 ```
 
 Limitations:
